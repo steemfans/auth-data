@@ -1,4 +1,4 @@
-# Steem Data Sign and Auth SDK
+# Auth Data SDK
 
 This SDK is for the users who want to use steem user's private key to sign data to auth user identity without jsonrpc.
 
