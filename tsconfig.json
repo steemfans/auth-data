@@ -4,9 +4,11 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist/cmjs",
-    "rootDir": "./src",
     "declaration": true,
     "sourceMap": true,
     "lib": ["dom", "es6"]
-  }
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
 }
