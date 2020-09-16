@@ -4,6 +4,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist/cmjs",
+    "rootDir": ".",
     "declaration": true,
     "sourceMap": true,
     "lib": ["dom", "es6"]

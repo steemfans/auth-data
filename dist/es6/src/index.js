@@ -1,4 +1,3 @@
-"use strict";
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -10,29 +9,28 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-var steem_js_1 = require("@steemit/steem-js");
-var ecc_1 = require("@steemit/steem-js/lib/auth/ecc");
-var crypto_1 = require("crypto");
+import { auth } from '@steemit/steem-js';
+import { Signature, PublicKey } from '@steemit/steem-js/lib/auth/ecc';
+import { randomBytes } from 'crypto';
 var DATA_TIMEOUT = 60 * 2; // second
-function signData(data, privKey) {
+export function signData(data, privKey) {
     var d = '';
     if (typeof data === 'string')
         d = data;
     if (typeof data === 'object')
         d = JSON.stringify(data);
-    if (!steem_js_1.auth.isWif(privKey)) {
+    if (!auth.isWif(privKey)) {
         throw new Error('unexpected_private_key');
     }
-    var nonce = crypto_1.randomBytes(8).toString('hex');
+    var nonce = randomBytes(8).toString('hex');
     var timestamp = getUtcTimestamp();
-    var sign = ecc_1.Signature.sign("" + d + nonce + timestamp, privKey);
+    var sign = Signature.sign("" + d + nonce + timestamp, privKey);
     var signature = sign.toHex();
-    return __assign(__assign({}, data), { nonce: nonce,
+    return __assign(__assign({}, JSON.parse(d)), { nonce: nonce,
         timestamp: timestamp,
         signature: signature });
 }
-function unsignData(data, pubKey) {
+export function authData(data, pubKey) {
     var nonce = data.nonce, timestamp = data.timestamp, signature = data.signature;
     var currentTimestamp = getUtcTimestamp();
     if (nonce === undefined) {
@@ -44,7 +42,7 @@ function unsignData(data, pubKey) {
     if (signature === undefined) {
         throw new Error('lost_signature');
     }
-    if (parseInt(currentTimestamp, 10) - timestamp > DATA_TIMEOUT) {
+    if (parseInt(currentTimestamp, 10) - parseInt(timestamp, 10) > DATA_TIMEOUT) {
         throw new Error('data_timeout');
     }
     var d = JSON.stringify(data, function (k, v) {
@@ -54,16 +52,12 @@ function unsignData(data, pubKey) {
         return undefined;
     });
     var msg = new Buffer("" + d + nonce + timestamp);
-    var sign = ecc_1.Signature.fromHex(signature);
-    return sign.verifyBuffer(msg, ecc_1.PublicKey.fromString(pubKey));
+    var sign = Signature.fromHex(signature);
+    return sign.verifyBuffer(msg, PublicKey.fromString(pubKey));
 }
-function getUtcTimestamp() {
+export function getUtcTimestamp() {
     var now = new Date();
     var utcTimestamp = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
     return "" + parseInt((utcTimestamp / 1000).toString(), 10);
 }
-module.exports = {
-    signData: signData,
-    unsignData: unsignData,
-};
 //# sourceMappingURL=index.js.map

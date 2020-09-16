@@ -2,9 +2,15 @@ import { auth } from '@steemit/steem-js'
 import { Signature, PublicKey } from '@steemit/steem-js/lib/auth/ecc'
 import { randomBytes } from 'crypto'
 
-const DATA_TIMEOUT = 60 * 2 // second
+const DATA_TIMEOUT: number = 60 * 2 // second
 
-function signData(data:any, privKey:string):object {
+export interface SignedData {
+    nonce: string;
+    timestamp: string;
+    signature: string;
+}
+
+export function signData(data: unknown, privKey: string): SignedData {
     let d = ''
     if (typeof data === 'string') d = data
     if (typeof data === 'object') d = JSON.stringify(data)
@@ -12,22 +18,22 @@ function signData(data:any, privKey:string):object {
         throw new Error('unexpected_private_key')
     }
 
-    const nonce = randomBytes(8).toString('hex')
-    const timestamp = getUtcTimestamp()
+    const nonce: string = randomBytes(8).toString('hex')
+    const timestamp: string = getUtcTimestamp()
 
     const sign = Signature.sign(`${d}${nonce}${timestamp}`, privKey)
-    const signature = sign.toHex()
+    const signature: string = sign.toHex()
     return {
-        ...data,
+        ...JSON.parse(d),
         nonce,
         timestamp,
         signature,
     }
 }
 
-function unsignData(data:any, pubKey:string):boolean {
+export function authData(data: SignedData, pubKey: string): boolean {
     const { nonce, timestamp, signature } = data
-    const currentTimestamp = getUtcTimestamp()
+    const currentTimestamp: string = getUtcTimestamp()
     if (nonce === undefined) {
         throw new Error('lost_nonce')
     }
@@ -37,23 +43,23 @@ function unsignData(data:any, pubKey:string):boolean {
     if (signature === undefined) {
         throw new Error('lost_signature')
     }
-    if (parseInt(currentTimestamp, 10) - timestamp > DATA_TIMEOUT) {
+    if (parseInt(currentTimestamp, 10) - parseInt(timestamp, 10) > DATA_TIMEOUT) {
         throw new Error('data_timeout')
     }
-    const d = JSON.stringify(data, (k, v) => {
+    const d: string = JSON.stringify(data, (k, v) => {
         if (['nonce', 'timestamp', 'signature'].indexOf(k) === -1) {
             return v
         }
         return undefined
     })
-    const msg = new Buffer(`${d}${nonce}${timestamp}`)
+    const msg: Buffer = new Buffer(`${d}${nonce}${timestamp}`)
     const sign = Signature.fromHex(signature)
     return sign.verifyBuffer(msg, PublicKey.fromString(pubKey))
 }
 
-function getUtcTimestamp():string {
-    const now = new Date()
-    const utcTimestamp = Date.UTC(
+export function getUtcTimestamp():string {
+    const now: Date = new Date()
+    const utcTimestamp: number = Date.UTC(
         now.getUTCFullYear(),
         now.getUTCMonth(),
         now.getUTCDate(),
@@ -63,9 +69,4 @@ function getUtcTimestamp():string {
         now.getUTCMilliseconds()
     )
     return `${parseInt((utcTimestamp / 1000).toString(), 10)}`
-}
-
-module.exports = {
-    signData,
-    unsignData,
 }
