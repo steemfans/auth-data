@@ -1,9 +1,9 @@
 {
   "name": "@steemfans/auth-data",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "To sign and auth data without a json-rpc way.",
-  "main": "dist/cmjs/index.js",
-  "module": "dist/es6/index.js",
+  "main": "dist/cmjs/src/index.js",
+  "module": "dist/es6/src/index.js",
   "scripts": {
     "build:cmjs": "tsc -P tsconfig.json",
     "build:es6": "tsc -P tsconfig.json --module ES6 --outDir dist/es6",
