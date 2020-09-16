@@ -1,6 +1,6 @@
 {
   "name": "@steemfans/auth-data",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "To sign and auth data without a json-rpc way.",
   "main": "dist/cmjs/index.js",
   "module": "dist/es6/index.js",
