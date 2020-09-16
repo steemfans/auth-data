@@ -7,7 +7,7 @@
   "scripts": {
     "build:cmjs": "tsc -P tsconfig.json",
     "build:es6": "tsc -P tsconfig.json --module ES6 --outDir dist/es6",
-    "build": "yarn run clean; yarn run lint; yarn run build:cmjs; yarn run build:es6",
+    "build": "yarn clean; yarn lint; yarn build:cmjs; yarn build:es6; yarn test",
     "clean": "rm -rf dist/*",
     "lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "jest"
